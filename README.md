@@ -1,0 +1,57 @@
+# rag
+This is a minimal installation of the rag model for question answering
+
+
+## Requirements
+Python 3.10
+Install Dependencies
+sudo apt update
+sudo apt install libpq-dev gcc python3-dev
+Install Python using MiniConda
+Download and install MiniConda from here
+Create a new environment using the following command:
+$ conda create -n mini-rag python=3.10
+Activate the environment:
+$ conda activate mini-rag
+(Optional) Setup you command line interface for better readability
+export PS1="\[\033[01;32m\]\u@\h:\w\n\[\033[00m\]\$ "
+(Optional) Run Ollama Local LLM Server using Colab + Ngrok
+Check the notebook + Video
+Installation
+Install the required packages
+$ pip install -r requirements.txt
+Setup the environment variables
+$ cp .env.example .env
+Run Alembic Migration
+$ alembic upgrade head
+Set your environment variables in the .env file. Like OPENAI_API_KEY value.
+
+Run Docker Compose Services
+$ cd docker
+$ cp .env.example .env
+update .env with your credentials
+$ cd docker
+$ sudo docker compose up -d
+Access Services
+FastAPI: http://localhost:8000
+Flower Dashboard: http://localhost:5555 (admin/password from env)
+Grafana: http://localhost:3000
+Prometheus: http://localhost:9090
+Run the FastAPI server (Development Mode)
+$ uvicorn main:app --reload --host 0.0.0.0 --port 5000
+Celery (Development Mode)
+For development, you can run Celery services manually instead of using Docker:
+
+To Run the Celery worker, you need to run the following command in a separate terminal:
+
+$ python -m celery -A celery_app worker --queues=default,file_processing,data_indexing --loglevel=info
+To run the Beat scheduler, you can run the following command in a separate terminal:
+
+$ python -m celery -A celery_app beat --loglevel=info
+To Run Flower Dashboard, you can run the following command in a separate terminal:
+
+$ python -m celery -A celery_app flower --conf=flowerconfig.py
+open your browser and go to http://localhost:5555 to see the dashboard.
+
+POSTMAN Collection
+Download the POSTMAN collection from /assets/mini-rag-app.postman_collection.json
