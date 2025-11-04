@@ -1,0 +1,5 @@
+# rag
+This is a minimal installation of the rag model for question answering
+
+## requirements
+- Python 3.8 or later
