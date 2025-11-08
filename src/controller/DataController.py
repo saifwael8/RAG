@@ -1,9 +1,14 @@
 from .BaseController import BaseController
 from .ProjectController import ProjectController
+from src.helper.config import get_settings, Settings
 from fastapi import UploadFile
 from src.model import StatusEnums
+import aiofiles
 import re
 import os
+import logging
+
+logger = logging.getLogger('uvicorn.error')
 
 
 class DataController(BaseController):
@@ -21,7 +26,6 @@ class DataController(BaseController):
         return True, StatusEnums.FILE_VALIDATION_SUCCESS
 
     def clean_filename(self, orig_filename: str):
-        cleaned_filename = cleaned_filename.replace(" ", "_")
         cleaned_filename = re.sub(r'[^\w.]', '', orig_filename.strip()) #deletes characters other than letters, numbers, underscore and .
         return cleaned_filename
 
@@ -46,6 +50,17 @@ class DataController(BaseController):
             )
 
         return new_file_path
+
+    async def save_file(self, file_path: str, file=UploadFile):
+        try:
+            async with aiofiles.open(file_path, "wb") as f:
+                while chunk := await file.read(get_settings().FILE_DEFAULT_CHUNK_SIZE):
+                    await f.write(chunk)
+            return StatusEnums.FILE_UPLOADED_SUCCESSFULLY
+        except Exception as e:
+            logger.error(f"Error while uploading file: {e}")
+            return StatusEnums.FILE_UPLOADING_FAILED
+
 
 
     

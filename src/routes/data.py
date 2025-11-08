@@ -5,9 +5,6 @@ from fastapi.responses import JSONResponse
 from src.controller import DataController
 from src.controller import ProjectController
 import aiofiles 
-import logging
-
-logger = logging.getLogger('uvicorn.error')
 
 data_router = APIRouter(
     prefix = "/api/v1",
@@ -29,20 +26,17 @@ async def upload_file(project_id: str, file : UploadFile):
 
     new_filename_with_path = DataController().generate_unique_filename_and_return_path(file=file, project_id=project_id)
 
-    try:
-        async with aiofiles.open(new_filename_with_path, "wb") as f:
-            while chunk := await file.read(get_settings().FILE_DEFAULT_CHUNK_SIZE):
-                await f.write(chunk)
-    except Exception as e:
-        logger.error(f"Error while uploading file: {e}")
+    saving_file_status = await DataController().save_file(file_path=new_filename_with_path, file=file)
 
+    if saving_file_status == StatusEnums.FILE_UPLOADING_FAILED:
         return JSONResponse(
+            status_code = status.HTTP_400_BAD_REQUEST,
             content = {
-                    "Status": StatusEnums.FILE_UPLOADING_FAILED.value
+                    "Status": saving_file_status.value
             }
-         )
-
+         ) 
     return JSONResponse(
+            status_code = status.HTTP_201_CREATED,
             content = {
                     "Status": StatusEnums.FILE_UPLOADED_SUCCESSFULLY.value
             }
