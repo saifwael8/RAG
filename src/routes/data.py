@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, Depends, UploadFile, status
 from src.helper.config import get_settings, Settings
+from src.model import StatusEnums
 from fastapi.responses import JSONResponse
 from src.controller import DataController
 from src.controller import ProjectController
@@ -25,20 +26,21 @@ async def upload_file(project_id: str, file : UploadFile):
                 }
         )
 
-    project_path = ProjectController().get_project_dir_path(project_id=project_id)
+    new_filename_with_path = DataController().generate_unique_filename_and_return_path(file=file, project_id=project_id)
 
-    file_path = os.path.join(
-        project_path,
-        file.filename
-    )
-
-
-    async with aiofiles.open(file_path, "wb") as f:
-        while chunk := await file.read(get_settings().FILE_DEFAULT_CHUNK_SIZE):
-            await f.write(chunk)
+    try:
+        async with aiofiles.open(new_filename_with_path, "wb") as f:
+            while chunk := await file.read(get_settings().FILE_DEFAULT_CHUNK_SIZE):
+                await f.write(chunk)
+    except Exception as e:
+        return JSONResponse(
+            content = {
+                    "Status": StatusEnums.FILE_UPLOADING_FAILED.value
+            }
+         )
 
     return JSONResponse(
             content = {
-                    "Status": result_status.value
+                    "Status": StatusEnums.FILE_UPLOADED_SUCCESSFULLY.value
             }
     )
