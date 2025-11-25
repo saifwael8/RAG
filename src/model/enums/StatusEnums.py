@@ -7,3 +7,5 @@ class StatusEnums(Enum):
     FILE_UPLOADED_SUCCESSFULLY = "File uploaded successfully"
     FILE_UPLOADING_FAILED = "File failed to be uploaded"
     FILE_VALIDATION_SUCCESS = "File is successfully validated"
+    FILE_PROCESSED_SUCCESS = "File processed successfully"
+    FILE_PROCESSED_FAILED = "File failed to be processed"

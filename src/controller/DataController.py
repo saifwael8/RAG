@@ -49,7 +49,7 @@ class DataController(BaseController):
                 new_filename
             )
 
-        return new_file_path
+        return new_file_path, new_filename
 
     async def save_file(self, file_path: str, file=UploadFile):
         try:
